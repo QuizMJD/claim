@@ -1,41 +1,31 @@
 package com.t3h.insuranceclaim.service;
 
+import com.t3h.insuranceclaim.config.MinioConfig;
 import io.minio.*;
 import io.minio.http.Method;
-import org.springframework.beans.factory.annotation.Value;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
-import org.springframework.web.multipart.MultipartFile;
+import org.springframework.util.StringUtils;
 
 import java.io.ByteArrayInputStream;
 import java.util.Base64;
 import java.util.UUID;
 
+@Slf4j
 @Service
+@RequiredArgsConstructor
 public class MinioService {
 
-    @Value("${minio.endpoint}")
-    private String endpoint;
-
-    @Value("${minio.accessKey}")
-    private String accessKey;
-
-    @Value("${minio.secretKey}")
-    private String secretKey;
-
-    @Value("${minio.bucket}")
-    private String bucket;
-
-    private MinioClient minioClient;
-
-    public MinioService() {
-        this.minioClient = MinioClient.builder()
-                .endpoint(endpoint)
-                .credentials(accessKey, secretKey)
-                .build();
-    }
+    private final MinioClient minioClient;
+    private final MinioConfig minioConfig;
 
     public String uploadBase64Image(String base64Image, String folder) {
         try {
+            if (StringUtils.isEmpty(base64Image)) {
+                return null;
+            }
+
             // Remove data:image/jpeg;base64, prefix if exists
             if (base64Image.contains(",")) {
                 base64Image = base64Image.split(",")[1];
@@ -43,6 +33,11 @@ public class MinioService {
 
             // Decode base64 to byte array
             byte[] imageBytes = Base64.getDecoder().decode(base64Image);
+            
+            // Validate image size
+            if (imageBytes.length > 5 * 1024 * 1024) { // 5MB limit
+                throw new IllegalArgumentException("Image size exceeds 5MB limit");
+            }
 
             // Generate unique filename
             String filename = UUID.randomUUID().toString() + ".jpg";
@@ -51,23 +46,23 @@ public class MinioService {
             // Upload to MinIO
             minioClient.putObject(
                     PutObjectArgs.builder()
-                            .bucket(bucket)
+                            .bucket(minioConfig.getBucket())
                             .object(objectName)
                             .stream(new ByteArrayInputStream(imageBytes), imageBytes.length, -1)
                             .contentType("image/jpeg")
                             .build()
             );
 
-            // Generate URL
             return minioClient.getPresignedObjectUrl(
                     GetPresignedObjectUrlArgs.builder()
-                            .bucket(bucket)
+                            .bucket(minioConfig.getBucket())
                             .object(objectName)
                             .method(Method.GET)
                             .build()
             );
 
         } catch (Exception e) {
+            log.error("Error uploading image to MinIO: {}", e.getMessage());
             throw new RuntimeException("Failed to upload image to MinIO", e);
         }
     }
