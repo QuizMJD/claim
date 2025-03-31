@@ -19,6 +19,9 @@ public class MinioService {
 
     private final MinioClient minioClient;
     private final MinioConfig minioConfig;
+    
+    // Tăng kích thước tối đa lên 10MB
+    private static final long MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB
 
     public String uploadBase64Image(String base64Image, String folder) {
         try {
@@ -35,8 +38,8 @@ public class MinioService {
             byte[] imageBytes = Base64.getDecoder().decode(base64Image);
             
             // Validate image size
-            if (imageBytes.length > 5 * 1024 * 1024) { // 5MB limit
-                throw new IllegalArgumentException("Image size exceeds 5MB limit");
+            if (imageBytes.length > MAX_FILE_SIZE) {
+                throw new IllegalArgumentException("Image size exceeds " + (MAX_FILE_SIZE / (1024 * 1024)) + "MB limit");
             }
 
             // Generate unique filename

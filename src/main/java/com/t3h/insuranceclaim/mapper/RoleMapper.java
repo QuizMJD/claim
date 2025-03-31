@@ -1,23 +1,24 @@
 package com.t3h.insuranceclaim.mapper;
 
-
-import com.t3h.insuranceclaim.dto.RoleDTO;
+import com.t3h.insuranceclaim.dto.RoleDto;
 import com.t3h.insuranceclaim.entity.RoleEntity;
 import org.mapstruct.Mapper;
+import org.mapstruct.factory.Mappers;
 
 import java.util.Set;
 import java.util.stream.Collectors;
 
 @Mapper(componentModel = "spring")
 public interface RoleMapper {
+    RoleMapper INSTANCE = Mappers.getMapper(RoleMapper.class);
 
-    RoleDTO toRoleDTO(RoleEntity roleEntity);
-    RoleEntity toRoleEntity(RoleDTO roleDTO);
+    RoleDto toDto(RoleEntity entity);
+    RoleEntity toEntity(RoleDto dto);
 
-    default Set<RoleDTO> toRoleDTOSet(Set<RoleEntity> roleEntities) {
-        return roleEntities.stream().map(this::toRoleDTO).collect(Collectors.toSet());
+    default Set<RoleDto> toDtoSet(Set<RoleEntity> roleEntities) {
+        return roleEntities.stream().map(this::toDto).collect(Collectors.toSet());
     }
-    default Set<RoleEntity> toRoleEntitySet(Set<RoleDTO> roleDTOS) {
-        return roleDTOS.stream().map(this::toRoleEntity).collect(Collectors.toSet());
+    default Set<RoleEntity> toEntitySet(Set<RoleDto> roleDTOS) {
+        return roleDTOS.stream().map(this::toEntity).collect(Collectors.toSet());
     }
 }
