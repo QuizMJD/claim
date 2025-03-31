@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Quản lý User</title>
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.7.2/font/bootstrap-icons.css"
+      rel="stylesheet"
+    />
+    <style>
+      .avatar-preview {
+        width: 100px;
+        height: 100px;
+        object-fit: cover;
+        border-radius: 50%;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container-fluid mt-4">
+      <h2>Quản lý User</h2>
+
+      <!-- Filter Section -->
+      <div class="card mb-4">
+        <div class="card-body">
+          <form id="filterForm" class="row g-3">
+            <div class="col-md-3">
+              <label class="form-label">Mã User</label>
+              <input type="text" class="form-control" id="codeFilter" />
+            </div>
+            <div class="col-md-3">
+              <label class="form-label">Số điện thoại</label>
+              <input type="text" class="form-control" id="phoneFilter" />
+            </div>
+            <div class="col-md-3">
+              <label class="form-label">Ngày tạo</label>
+              <input type="date" class="form-control" id="createdDateFilter" />
+            </div>
+            <div class="col-md-3 d-flex align-items-end">
+              <button
+                type="button"
+                class="btn btn-primary me-2"
+                onclick="searchUsers()"
+              >
+                <i class="bi bi-search"></i> Tìm kiếm
+              </button>
+              <button
+                type="button"
+                class="btn btn-success"
+                onclick="showCreateUserModal()"
+              >
+                <i class="bi bi-plus-circle"></i> Tạo User
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+
+      <!-- User Table -->
+      <div class="card">
+        <div class="card-body">
+          <div class="table-responsive">
+            <table class="table table-striped">
+              <thead>
+                <tr>
+                  <th>Mã</th>
+                  <th>Username</th>
+                  <th>Họ tên</th>
+                  <th>Số điện thoại</th>
+                  <th>Ngày tạo</th>
+                  <th>Địa chỉ</th>
+                </tr>
+              </thead>
+              <tbody id="userTableBody"></tbody>
+            </table>
+          </div>
+
+          <!-- Pagination -->
+          <nav aria-label="Page navigation" class="mt-4">
+            <ul class="pagination justify-content-center" id="pagination"></ul>
+          </nav>
+        </div>
+      </div>
+    </div>
+
+    <!-- Create User Modal -->
+    <div class="modal fade" id="createUserModal" tabindex="-1">
+      <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title">Tạo User Mới</h5>
+            <button
+              type="button"
+              class="btn-close"
+              data-bs-dismiss="modal"
+            ></button>
+          </div>
+          <div class="modal-body">
+            <form id="createUserForm">
+              <div class="row mb-3">
+                <div class="col-md-6">
+                  <label class="form-label">Username</label>
+                  <input
+                    type="text"
+                    class="form-control"
+                    name="username"
+                    required
+                  />
+                </div>
+                <div class="col-md-6">
+                  <label class="form-label">Mật khẩu</label>
+                  <input
+                    type="password"
+                    class="form-control"
+                    name="password"
+                    required
+                  />
+                </div>
+              </div>
+              <div class="row mb-3">
+                <div class="col-md-6">
+                  <label class="form-label">Mã User</label>
+                  <input
+                    type="text"
+                    class="form-control"
+                    name="code"
+                    required
+                  />
+                </div>
+                <div class="col-md-6">
+                  <label class="form-label">Email</label>
+                  <input
+                    type="email"
+                    class="form-control"
+                    name="email"
+                    required
+                  />
+                </div>
+              </div>
+              <div class="row mb-3">
+                <div class="col-md-6">
+                  <label class="form-label">Họ</label>
+                  <input
+                    type="text"
+                    class="form-control"
+                    name="firstName"
+                    required
+                  />
+                </div>
+                <div class="col-md-6">
+                  <label class="form-label">Tên</label>
+                  <input
+                    type="text"
+                    class="form-control"
+                    name="lastName"
+                    required
+                  />
+                </div>
+              </div>
+              <div class="row mb-3">
+                <div class="col-md-6">
+                  <label class="form-label">Số điện thoại</label>
+                  <input
+                    type="text"
+                    class="form-control"
+                    name="phone"
+                    required
+                  />
+                </div>
+                <div class="col-md-6">
+                  <label class="form-label">Địa chỉ</label>
+                  <input
+                    type="text"
+                    class="form-control"
+                    name="address"
+                    required
+                  />
+                </div>
+              </div>
+              <div class="mb-3">
+                <label class="form-label">Avatar</label>
+                <input
+                  type="file"
+                  class="form-control"
+                  id="avatarInput"
+                  accept="image/*"
+                />
+                <div class="mt-2">
+                  <img id="avatarPreview" class="avatar-preview d-none" />
+                </div>
+              </div>
+            </form>
+          </div>
+          <div class="modal-footer">
+            <button
+              type="button"
+              class="btn btn-secondary"
+              data-bs-dismiss="modal"
+            >
+              Đóng
+            </button>
+            <button
+              type="button"
+              class="btn btn-primary"
+              onclick="createUser()"
+            >
+              Tạo User
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="js/user-manager.js"></script>
+  </body>
+</html>
